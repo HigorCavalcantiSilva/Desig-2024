@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designação</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #5F9EA0;
+        }
+
+        /* Estilos para o input */
+        input, select {
+            padding: 4px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none; /* Remove a borda de foco padrão */
+        }
+
+        /* Estilos para quando o input está em foco */
+        input:focus, select:focus {
+            border-color: #007bff; /* Altera a cor da borda quando em foco */
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Adiciona uma sombra quando em foco */
+        }
+
+        #img {
+            border: 4px solid black;
+        }
+
+        /* Estilos para dispositivos móveis (largura até 768px, por exemplo) */
+        @media screen and (max-width: 768px) {
+            #img {
+                width: 99%;
+                /* Outros estilos para dispositivos móveis */
+            }
+        }
+
+        /* Estilos para tablets e computadores */
+        @media screen and (min-width: 769px) {
+            #img {
+                max-width: 500px;
+                /* Outros estilos para tablets e computadores */
+            }
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .panel {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            z-index: 9999; /* Z-index alto para sobrepor outros elementos */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Sombra para efeito de destaque */
+        }
+
+        /* Estilos para o botão */
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px; /* Deixa o botão redondo */
+            background-color: #db4d34; /* Cor de fundo normal */
+            color: #fff; /* Cor do texto */
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Efeito de transição suave */
+        }
+
+        /* Estilos para o hover do botão */
+        button:hover {
+            background-color: #2980b9; /* Cor de fundo no hover */
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/21.0.1/min/jcanvas.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body>
+
+    <div class="panel">
+        <h2>Insira as informações da designação</h2>
+
+        <label for="nome">Nome:</label>
+        <select id="nome" class="select2">
+            <option value="">Selecione</option>
+        </select>
+        <br/><br/>
+    
+        <label for="ajudante">Ajudante:</label>
+        <select id="ajudante" class="select2">
+            <option value="">Selecione</option>
+        </select>
+        <br/><br/>
+    
+        <label for="data">Data:</label>
+        <input type="date" id="data">
+        <br/><br/>
+    
+        <label for="numero">Número da parte:</label>
+        <select id="numero">
+            <option value="">Selecione</option>
+        </select>
+        <br/><br/>
+    
+        <label for="parte">Designação:</label>
+        <select id="parte" class="select2">
+            <option value="">Selecione</option>
+            <option value="Iniciando Conversas">Iniciando Conversas</option>
+            <option value="Cultivando Interesse">Cultivando Interesse</option>
+            <option value="Fazendo Discípulos">Fazendo Discípulos</option>
+            <option value="Explicando Suas Crenças">Explicando Suas Crenças</option>
+            <option value="Discurso">Discurso</option>
+        </select>
+        <br/><br/>
+
+        <button onclick="limpar()">Limpar</button>
+    </div>
+
+    <br/><br/>
+
+    <hr/>
+
+    <h3 style="color: blue">Como Enviar?</h3>
+    <h3 style="padding-left: 20px; color: blue">1. Clique/Segure na designação</h3>
+    <h3 style="padding-left: 20px; color: blue">2. Compartilhar Imagem (Ou no ícone do whatsapp)</h3>
+
+    <canvas id="canvas" width="526" height="682"></canvas>
+    <img id="img" alt="Problema Encontrado - Avise o Higor Cavalcanti" />
+
+    <script>
+        $(document).ready(function() {
+            for(let i = 0; i < irmaos.length; i++) {
+                let irmao = irmaos[i];
+
+                $('#nome').append($('<option>', {
+                        value: irmao
+                    }).text(irmao));
+
+                $('#ajudante').append($('<option>', {
+                        value: irmao
+                    }).text(irmao));
+            }
+
+            for(let i = 1; i < 11; i++) {
+                $('#numero').append($('<option>', {
+                    value: i
+                }).text(i));
+            }
+
+            $('#nome, #ajudante, #data, #numero, #parte').on('change', function() {
+                if($('#nome').val() === $('#ajudante').val() && $('#nome').val() !== '' && $('#ajudante').val() !== '') {
+                    alert('O dono da parte e o ajudante devem ser pessoas diferentes!');
+                    $(this).val(null).trigger('change');
+                    return
+                }
+                montarDesignacao();
+            });
+
+            // Adiciona um listener para quando a data for alterada
+            $('#data').on('focusout', function() {
+                if (this.value != '' && !isQuintaFeira(this.value)) {
+                    alert('Por favor, selecione uma quinta-feira.');
+                    $(this).val(''); // Limpa o valor do input se não for uma quinta-feira
+                }
+            });
+
+            $('#canvas').on('mousedown', function(event) {
+                if (event.which === 1) { // Verifica se o clique foi com o botão esquerdo do mouse (1)
+                event.preventDefault(); // Impede o comportamento padrão do clique
+
+                var eventoBotaoDireito = $.Event('mousedown', {
+                    bubbles: true,
+                    cancelable: false,
+                    which: 3 // Indica um clique com o botão direito do mouse (3)
+                });
+
+                $(this).trigger(eventoBotaoDireito); // Dispara o evento de clique com botão direito no elemento
+                }
+            });
+
+            $('.select2').select2();
+        });
+
+        let irmaos = [
+            'ADRIANO CEBALHO',
+            'AGNALDO SANTIAGO',
+            'ALESSANDRE COUTINHO',
+            'ANA LAURA DE MACÊDO',
+            'ANDRÉIA ANTÔNIA',
+            'BEATRIZ GENTILE',
+            'BEMJAMIM INÁCIO ORO',
+            'BRUNA GOMES RAMOS',
+            'CARLOS HENRIQUE',
+            'CAROLINE BALESTERO',
+            'CAUÃ OLIVEIRA',
+            'CELINA RODRIGUES',
+            'CESAR MACÊDO',
+            'CHRISTIANY NEVES',
+            'CLAUDETE PEREIRA',
+            'CLEUSA NEVES',
+            'CRISTHIAN FREITAS',
+            'DANIELLI RODRIGUES',
+            'DÉBORA ROSA',
+            'DERCI DOS SANTOS',
+            'EDMEIA BRILTES FERREIRA',
+            'EDNA GOMES',
+            'ELAINE MARTINS',
+            'ELAINE ORO',
+            'ÉLCIO LOPES',
+            'ELICE GARCIA MANHÃES',
+            'ELZA VALENZUELA',
+            'EMILY DE LIMA CRISTALDO',
+            'ERIKA SANTOS',
+            'EVELIN DE OLIVEIRA ',
+            'FÁTIMA FERREIRA',
+            'FELIPE DE OLIVEIRA SILVA',
+            'FERNANDA GOMES RAMOS',
+            'GIOVANA CRISTINA',
+            'GISELDA MOREIRA',
+            'GLAURA GARCIA',
+            'HELOÍSA PIMENTEL',
+            'HIGOR CAVALCANTI SILVA',
+            'IVANISE MOTA FONSECA',
+            'JOÃO CORRÊA',
+            'JOSÉ GAMA',
+            'JOSÉ MARIA BATISTA',
+            'JOSÉ RODRIGUES NEVES',
+            'KELLY MOREIRA',
+            'LEILA GÓES',
+            'LILIAN DOURADO GOMES',
+            'LUAN ECHEVERRIA',
+            'LUCAS NEVES',
+            'LUIS VALENZUELA',
+            'LUIS CARLOS DE SÁ',
+            'LUIZ DONIZETE',
+            'MARCICLEIDE',
+            'MARCOS ALMEIDA ROSA',
+            'MARGARETE MARQUES',
+            'MARIA DE LOURDES',
+            'MARIA DE LOURDES GOMES',
+            'MARIA ETELVINA',
+            'MARIA LIMA DA SILVA',
+            'MARIANA CRISTINA RONDON',
+            'MARILDA RIBEIRO VEIGA',
+            'MENAÍDE ARGUELHO DA COSTA',
+            'MIGUEL ALEIXO',
+            'NEIDE DE ALMEIDA OLIVEIRA',
+            'NEIMAR CORDEIRO',
+            'ODETE CLEÔMENA',
+            'PÂMELA TRINDADE',
+            'RAIMUNDA CUNHA DA SILVA',
+            'RAMONA NASCIMENTO',
+            'REJIANE MENDES MACÊDO',
+            'RENATO DE ALMEIDA SANTOS',
+            'ROBERVAL CARDOSO',
+            'SANDRO MACÊDO',
+            'SANDY RAWANE VALENZUELA',
+            'SUELLEN E NANTES',
+            'TALITA CORRÊA',
+            'THAÍSE VIEIRA LIMA',
+            'VALDEMAR SOUZA',
+            'VERONICE MACÊDO'
+        ]
+
+        // Função para adicionar texto à imagem
+        function montarDesignacao() {
+          // Seleciona o canvas e seu contexto
+          var canvas = document.getElementById('canvas');
+          var ctx = canvas.getContext('2d');
+    
+          // Carrega a imagem
+          var imagem = new Image();
+          imagem.src = './desig.png'; // Substitua pelo caminho da sua imagem
+          imagem.setAttribute('crossorigin', 'anonymous')
+    
+          imagem.onload = function() {
+            // Desenha a imagem no canvas
+            ctx.drawImage(imagem, 0, 0, canvas.width, canvas.height);
+    
+            // Configurações do texto
+            ctx.fillStyle = 'black'; // Cor do texto
+            ctx.font = '22px Arial'; // Fonte e tamanho do texto
+            ctx.textAlign = 'left'; // Alinhamento horizontal
+            ctx.fillText($('#nome').val(), 110, 115); // X, Y
+            ctx.fillText($('#ajudante').val(), 155, 165); // X, Y
+            ctx.fillText($('#data').val().split('-').reverse().join('/'), 98, 215); // X, Y
+
+            ctx.font = '19px Arial';
+            ctx.fillText($('#numero').val() + '. ' + $('#parte').val(), 253, 265); // X, Y
+
+            ctx.font = 'bold 23px Arial';
+            ctx.fillText('X', 56, 387); // X, Y
+
+            let imagemBase64 = canvas.toDataURL('image/png');
+            $('#img').attr('src', imagemBase64);
+          };
+        }
+    
+        // Chama a função para adicionar texto à imagem quando a página carregar
+        window.onload = montarDesignacao;
+
+         // Função para verificar se a data selecionada é uma quinta-feira
+        function isQuintaFeira(data) {
+            let dia = new Date(data).getDay();
+            let liberado = false;
+            if(dia === 1) {
+                let visita = confirm('É semana da visita?');
+
+                if(visita) {
+                    liberado = true;
+                }
+            } else if (dia === 3) {
+                liberado = true;
+            }
+
+            return liberado;
+        }
+
+        function limpar() {
+            $('#nome').val(null).trigger('change');
+            $('#ajudante').val(null).trigger('change');
+            $('#data').val(null);
+            $('#numero').val(null).trigger('change');
+            $('#parte').val(null).trigger('change');
+        }
+      </script>
+</body>
+</html>
