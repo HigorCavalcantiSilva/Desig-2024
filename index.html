@@ -163,10 +163,10 @@
             });
 
             // Adiciona um listener para quando a data for alterada
-            $('#data').on('input', function() {
-                if (!isQuintaFeira(this.value)) {
-                alert('Por favor, selecione uma quinta-feira.');
-                $(this).val(''); // Limpa o valor do input se não for uma quinta-feira
+            $('#data').on('focusout', function() {
+                if (this.value != '' && !isQuintaFeira(this.value)) {
+                    alert('Por favor, selecione uma quinta-feira.');
+                    $(this).val(''); // Limpa o valor do input se não for uma quinta-feira
                 }
             });
 
