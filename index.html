@@ -110,6 +110,7 @@
         <label for="parte">Designação:</label>
         <select id="parte" class="select2">
             <option value="">Selecione</option>
+            <option value="Leitura da Bíblia">Leitura da Bíblia</option>
             <option value="Iniciando Conversas">Iniciando Conversas</option>
             <option value="Cultivando Interesse">Cultivando Interesse</option>
             <option value="Fazendo Discípulos">Fazendo Discípulos</option>
@@ -162,10 +163,10 @@
             });
 
             // Adiciona um listener para quando a data for alterada
-            $('#data').on('focusout', function() {
-                if (this.value != '' && !isQuintaFeira(this.value)) {
-                    alert('Por favor, selecione uma quinta-feira.');
-                    $(this).val(''); // Limpa o valor do input se não for uma quinta-feira
+            $('#data').on('input', function() {
+                if (!isQuintaFeira(this.value)) {
+                alert('Por favor, selecione uma quinta-feira.');
+                $(this).val(''); // Limpa o valor do input se não for uma quinta-feira
                 }
             });
 
